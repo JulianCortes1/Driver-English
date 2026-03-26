@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Driver English">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>English for Drivers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --card: #16161f;
+  --border: #1e1e2e;
+  --accent: #f5c842;
+  --accent2: #4af0c4;
+  --accent3: #f07a4a;
+  --red: #f04a6a;
+  --text: #e8e8f0;
+  --muted: #6b6b88;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
+
+/* GRID BG */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,200,66,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(245,200,66,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;z-index:1;transition:opacity .35s,transform .35s;padding-bottom:calc(80px + var(--safe-bot))}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateX(30px)}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 calc(10px + var(--safe-bot));justify-content:space-around}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 20px;transition:color .2s;font-family:'DM Sans',sans-serif}
+.nav-btn.active{color:var(--accent)}
+.nav-btn svg{width:22px;height:22px}
+.nav-btn span{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+
+/* HOME */
+.home-header{padding:calc(20px + var(--safe-top)) 20px 20px;position:relative;z-index:2}
+.home-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff}
+.home-logo span{color:var(--accent)}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:20px;padding:5px 14px;font-size:13px;color:var(--accent);font-weight:500;margin-top:8px}
+.overall-progress{margin:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.op-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.op-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.op-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .6s ease}
+.op-stats{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--muted)}
+.op-stats strong{color:var(--text)}
+
+/* MODULE CARDS */
+.modules-grid{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.module-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .3s,transform .15s;active:transform:scale(.98)}
+.module-card:active{transform:scale(.98)}
+.module-card.unlocked:hover{border-color:var(--accent)}
+.module-card.locked{opacity:.5;cursor:not-allowed}
+.mc-header{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.mc-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--border);min-width:44px;line-height:1;transition:color .3s}
+.module-card.unlocked .mc-num{color:var(--accent)}
+.mc-info{flex:1}
+.mc-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.mc-sub{font-size:12px;color:var(--muted)}
+.mc-progress{display:flex;align-items:center;gap:10px;padding:0 18px 14px}
+.mc-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.mc-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s}
+.mc-pct{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;min-width:28px;text-align:right}
+.lock-icon{font-size:18px;color:var(--muted)}
+
+/* INSTALL BANNER */
+.install-banner{margin:16px;background:linear-gradient(135deg,#1a1500,#0f1a10);border:1px solid rgba(245,200,66,.25);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer}
+.install-banner.hidden{display:none}
+.ib-icon{font-size:28px}
+.ib-text h4{font-size:14px;color:#fff;font-weight:600;margin-bottom:3px}
+.ib-text p{font-size:12px;color:var(--muted);line-height:1.4}
+.ib-arrow{color:var(--accent);font-size:20px;margin-left:auto}
+
+/* LESSON LIST SCREEN */
+.lesson-list-header{padding:calc(16px + var(--safe-top)) 20px 16px;display:flex;align-items:center;gap:14px}
+.back-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:18px;flex-shrink:0}
+.llh-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff}
+.llh-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.weeks-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.week-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.week-card:active{transform:scale(.99)}
+.week-card.done{border-color:rgba(74,240,196,.3)}
+.week-card.active-week{border-color:var(--accent)}
+.week-card.locked-week{opacity:.45;cursor:not-allowed}
+.wc-row{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.wc-num{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);min-width:46px}
+.wc-info{flex:1}
+.wc-title{font-size:14px;font-weight:600;color:#fff}
+.wc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.wc-badge{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.wc-badge.done{background:rgba(74,240,196,.15);color:var(--accent2)}
+.wc-badge.todo{background:var(--border);color:var(--muted)}
+.wc-badge.active{background:rgba(245,200,66,.15);color:var(--accent)}
+
+/* LESSON SCREEN */
+.lesson-header{padding:calc(14px + var(--safe-top)) 16px 14px;display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
+.lesson-progress-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--accent);transition:width .4s}
+.lh-info{flex:1}
+.lh-week{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--accent);text-transform:uppercase}
+.lh-title{font-size:16px;font-weight:600;color:#fff;margin-top:2px}
+
+/* LESSON STEPS */
+.lesson-body{padding:16px}
+.step{display:none;animation:stepIn .35s ease}
+.step.active{display:block}
+@keyframes stepIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.step-type-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);margin-bottom:10px}
+
+/* PHRASE CARD */
+.phrase-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;margin-bottom:16px}
+.phrase-en{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:8px}
+.phrase-pron{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);margin-bottom:10px}
+.phrase-es{font-size:15px;color:var(--muted);font-weight:300}
+.tts-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:30px;padding:10px 22px;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;margin:12px auto 0;font-family:'DM Sans',sans-serif;transition:background .2s}
+.tts-btn:active{background:rgba(245,200,66,.2)}
+.tts-btn svg{width:18px;height:18px;flex-shrink:0}
+
+/* CONTEXT BOX */
+.context-box{background:linear-gradient(135deg,#1a1200,#0a0f1a);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.context-scene{font-size:12px;color:var(--accent3);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.dialog-line{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.dialog-line:last-child{margin-bottom:0}
+.dl-who{font-size:11px;font-weight:600;color:var(--muted);min-width:60px;padding-top:2px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+.dl-text{font-size:14px;color:var(--text);line-height:1.5}
+.dl-text em{color:var(--accent);font-style:normal;font-weight:500}
+
+/* VOCAB LIST */
+.vocab-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.vocab-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.vocab-item:active{background:var(--card)}
+.vi-en{font-size:15px;color:#fff;font-weight:500}
+.vi-pron{font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:2px}
+.vi-es{font-size:13px;color:var(--muted)}
+.vi-speaker{color:var(--muted);font-size:18px}
+
+/* FLASHCARDS */
+.flashcard-wrapper{perspective:1000px;margin-bottom:20px;cursor:pointer}
+.flashcard{width:100%;height:200px;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.flashcard.flipped{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.fc-front{background:var(--surface);border:2px solid var(--border)}
+.fc-back{background:linear-gradient(135deg,#1a1500,#0f1a10);border:2px solid rgba(245,200,66,.3);transform:rotateY(180deg)}
+.fc-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.fc-word{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:8px}
+.fc-sub{font-size:14px;color:var(--muted)}
+.fc-pron{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-top:6px}
+.fc-hint{font-size:11px;color:var(--muted);margin-top:16px;font-style:italic}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.fc-counter{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.fc-dots{display:flex;gap:6px}
+.fc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s}
+.fc-dot.active{background:var(--accent)}
+.fc-dot.done{background:var(--accent2)}
+.fc-arrows{display:flex;gap:10px}
+.fc-arrow{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text);transition:border-color .2s}
+.fc-arrow:active{border-color:var(--accent)}
+
+/* FILL IN THE BLANK */
+.fitb-question{font-size:17px;color:var(--text);line-height:1.8;margin-bottom:20px;text-align:center}
+.fitb-blank{display:inline-block;border-bottom:2px solid var(--accent);min-width:100px;text-align:center;color:var(--accent);font-weight:600;padding:0 4px}
+.fitb-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.fitb-opt{background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color .2s,background .2s;font-weight:500}
+.fitb-opt:active{background:var(--card)}
+.fitb-opt.correct{border-color:var(--accent2);background:rgba(74,240,196,.1);color:var(--accent2)}
+.fitb-opt.wrong{border-color:var(--red);background:rgba(240,74,106,.1);color:var(--red)}
+.fitb-opt.disabled{pointer-events:none}
+.fitb-feedback{background:var(--surface);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;display:none;margin-bottom:12px}
+.fitb-feedback.show{display:block}
+.fitb-feedback.correct{border-left:3px solid var(--accent2);color:var(--text)}
+.fitb-feedback.wrong{border-left:3px solid var(--red);color:var(--text)}
+
+/* TIP BOX */
+.tip-box{background:rgba(240,122,74,.06);border:1px solid rgba(240,122,74,.2);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.tip-label{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--accent3);margin-bottom:6px}
+.tip-text{font-size:13px;color:var(--text);line-height:1.7}
+
+/* ACTION BUTTONS */
+.btn-primary{width:100%;padding:15px;background:var(--accent);color:#0a0a0f;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s;margin-top:8px}
+.btn-primary:active{opacity:.85}
+.btn-secondary{width:100%;padding:14px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:border-color .2s}
+.btn-secondary:active{border-color:var(--accent)}
+
+/* COMPLETION */
+.completion-screen{text-align:center;padding:40px 24px}
+.comp-emoji{font-size:60px;margin-bottom:16px;display:block;animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.comp-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:8px}
+.comp-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:30px}
+.xp-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);border-radius:30px;padding:10px 22px;font-size:15px;color:var(--accent);font-weight:600;margin-bottom:30px}
+
+/* PROGRESS SCREEN */
+.progress-header{padding:calc(20px + var(--safe-top)) 20px 16px}
+.progress-header h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:#fff}
+.progress-header p{font-size:13px;color:var(--muted);margin-top:4px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 16px 20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center}
+.sc-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);display:block}
+.sc-label{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
+.module-progress-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.mp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.mp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.mp-name{font-size:13px;font-weight:500;color:#fff}
+.mp-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.mp-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.mp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s}
+
+/* STREAK CALENDAR */
+.streak-section{margin:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.streak-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:12px}
+.streak-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.streak-day{height:32px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
+.streak-day.done{background:rgba(245,200,66,.2);color:var(--accent)}
+.streak-day.today{background:var(--accent);color:#0a0a0f;font-weight:700}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;border:1px solid var(--border);padding:20px 20px calc(20px + var(--safe-bot));width:100%;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.modal-text{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+
+/* TOAST */
+.toast{position:fixed;top:calc(20px + var(--safe-top));left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--text);z-index:300;transition:transform .3s;white-space:nowrap;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- SCREENS -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div class="home-logo">Driver <span>English</span></div>
+    <div class="streak-badge">🔥 <span id="streak-count">0</span> días seguidos</div>
+  </div>
+  <div id="install-banner" class="install-banner hidden">
+    <div class="ib-icon">📲</div>
+    <div class="ib-text">
+      <h4>Agregar a pantalla principal</h4>
+      <p>Accede al curso con un toque, como una app</p>
+    </div>
+    <div class="ib-arrow">›</div>
+  </div>
+  <div class="overall-progress">
+    <div class="op-label">Progreso total del curso</div>
+    <div class="op-bar"><div class="op-fill" id="total-progress-bar" style="width:0%"></div></div>
+    <div class="op-stats"><span>Semanas completadas</span><strong><span id="weeks-done">0</span>/12</strong></div>
+  </div>
+  <div class="modules-grid" id="modules-grid"></div>
+  <div style="height:20px"></div>
+</div>
+
+<div id="screen-lessons" class="screen hidden">
+  <div class="lesson-list-header">
+    <div class="back-btn" onclick="showScreen('home')">‹</div>
+    <div>
+      <div class="llh-title" id="ll-title">Módulo</div>
+      <div class="llh-sub" id="ll-sub">Semanas</div>
+    </div>
+  </div>
+  <div class="weeks-list" id="weeks-list"></div>
+  <div style="height:20px"></div>
+</div>
+
+<div id="screen-lesson" class="screen hidden">
+  <div class="lesson-header">
+    <div class="back-btn" onclick="showScreen('lessons')">‹</div>
+    <div class="lh-info">
+      <div class="lh-week" id="lh-week">SEM. 1</div>
+      <div class="lh-title" id="lh-title">Lección</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="step-counter">1/5</div>
+    <div class="lesson-progress-bar" id="lesson-prog-bar"></div>
+  </div>
+  <div class="lesson-body" id="lesson-body"></div>
+</div>
+
+<div id="screen-progress" class="screen hidden">
+  <div class="progress-header">
+    <h2>Tu Progreso</h2>
+    <p>Racha y avance por módulo</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><span class="sc-num" id="ps-streak">0</span><div class="sc-label">Días racha</div></div>
+    <div class="stat-card"><span class="sc-num" id="ps-weeks">0</span><div class="sc-label">Semanas ✓</div></div>
+    <div class="stat-card"><span class="sc-num" id="ps-xp">0</span><div class="sc-label">XP ganado</div></div>
+  </div>
+  <div class="streak-section">
+    <div class="streak-title">🗓️ Últimas 4 semanas</div>
+    <div class="streak-grid" id="streak-grid"></div>
+  </div>
+  <div class="module-progress-list" id="module-progress-list"></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showScreen('home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="nav-btn" onclick="showScreen('progress')" id="nav-progress">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    <span>Progreso</span>
+  </button>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal-sheet" onclick="e=>e.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-text" id="modal-text"></div>
+    <button class="btn-primary" id="modal-btn" onclick="closeModal()">Entendido</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// COURSE DATA — 12 semanas completas
+// ============================================================
+const MODULES = [
+  {
+    id: 0, num: '01',
+    title: 'Welcome Aboard',
+    sub: 'Primeros contactos',
+    color: 'var(--accent)',
+    weeks: [0,1,2]
+  },
+  {
+    id: 1, num: '02',
+    title: 'On the Road',
+    sub: 'Instrucciones y navegación',
+    color: 'var(--accent2)',
+    weeks: [3,4,5]
+  },
+  {
+    id: 2, num: '03',
+    title: 'City Guide',
+    sub: 'Recorridos guiados',
+    color: 'var(--accent3)',
+    weeks: [6,7,8]
+  },
+  {
+    id: 3, num: '04',
+    title: 'Closing the Deal',
+    sub: 'Pagos, problemas y despedidas',
+    color: '#c084fc',
+    weeks: [9,10,11]
+  }
+];
+
+const WEEKS = [
+  // ── MÓDULO 1 ──────────────────────────────────────────────
+  {
+    id: 0, moduleId: 0,
+    title: 'Hello & Goodbye',
+    sub: 'Saludos y presentaciones',
+    xp: 50,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🚕 Acabas de recoger a un turista en el aeropuerto. ¿Cómo lo saludas?',
+        content: 'Hoy aprenderás las frases esenciales para recibir a cualquier turista con confianza. Son pocas, son simples y las vas a usar desde hoy.'
+      },
+      {
+        type: 'vocab',
+        title: 'Vocabulario esencial',
+        words: [
+          { en: 'Hello', pron: 'JE-lou', es: 'Hola' },
+          { en: 'Good morning', pron: 'gud MOR-nin', es: 'Buenos días' },
+          { en: 'Good afternoon', pron: 'gud af-ter-NUN', es: 'Buenas tardes' },
+          { en: 'Good evening', pron: 'gud EE-vnin', es: 'Buenas noches' },
+          { en: 'Welcome!', pron: 'WEL-cum', es: '¡Bienvenido!' },
+          { en: 'My name is...', pron: 'mai neim iz...', es: 'Mi nombre es...' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Diálogo en el taxi',
+        scene: 'Primera vez con un turista americano',
+        lines: [
+          { who: 'Tú', text: '<em>Hello! Welcome!</em>', es: '¡Hola! ¡Bienvenido!' },
+          { who: 'Turista', text: 'Hi! Thank you!', es: '¡Hola! ¡Gracias!' },
+          { who: 'Tú', text: '<em>My name is Carlos.</em> Nice to meet you!', es: 'Me llamo Carlos. ¡Encantado!' },
+          { who: 'Turista', text: 'Nice to meet you too, Carlos!', es: '¡Igualmente, Carlos!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Practica las frases',
+        cards: [
+          { front: 'Hola', back: 'Hello', pron: 'JE-lou' },
+          { front: 'Buenos días', back: 'Good morning', pron: 'gud MOR-nin' },
+          { front: 'Buenas tardes', back: 'Good afternoon', pron: 'gud af-ter-NUN' },
+          { front: 'Bienvenido', back: 'Welcome!', pron: 'WEL-cum' },
+          { front: 'Encantado', back: 'Nice to meet you!', pron: 'nais tu mit yu' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Completa el diálogo',
+        questions: [
+          { sentence: '___! Welcome to our taxi!', blank: '___', answer: 'Hello', options: ['Hello','Goodbye','Sorry','Please'], explanation: '"Hello" es el saludo más universal. Funciona a toda hora con cualquier turista.' },
+          { sentence: 'My ___ is Carlos.', blank: '___', answer: 'name', options: ['name','car','job','city'], explanation: '"My name is..." es la forma estándar de presentarse en inglés.' },
+          { sentence: 'Nice to ___ you!', blank: '___', answer: 'meet', options: ['see','meet','find','call'], explanation: '"Nice to meet you" significa "encantado de conocerte". Es muy educado y causa buena impresión.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 1, moduleId: 0,
+    title: 'Numbers & Money',
+    sub: 'Números, precios y tiempo',
+    xp: 55,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '💵 El turista te pregunta cuánto cuesta el viaje. ¿Qué le dices?',
+        content: 'Los números son esenciales para cobrar, dar el vuelto y decir cuánto tarda el viaje. Esta semana los dominas.'
+      },
+      {
+        type: 'vocab',
+        title: 'Números y frases de precio',
+        words: [
+          { en: 'How much?', pron: 'jau mach', es: '¿Cuánto cuesta?' },
+          { en: 'It\'s... dollars', pron: 'its... DO-lars', es: 'Son... dólares' },
+          { en: 'The total is...', pron: 'de TO-tal iz', es: 'El total es...' },
+          { en: 'About... minutes', pron: 'a-BAUT... MIN-its', es: 'Unos... minutos' },
+          { en: 'Change', pron: 'cheinch', es: 'Cambio / Vuelto' },
+          { en: 'Cash / Card', pron: 'kash / kard', es: 'Efectivo / Tarjeta' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Negociando el precio',
+        scene: 'Turista pregunta el costo del recorrido',
+        lines: [
+          { who: 'Turista', text: 'How much is it to the hotel?', es: '¿Cuánto cuesta al hotel?' },
+          { who: 'Tú', text: '<em>It\'s about twenty dollars.</em>', es: 'Son unos veinte dólares.' },
+          { who: 'Turista', text: 'How long will it take?', es: '¿Cuánto tiempo tarda?' },
+          { who: 'Tú', text: '<em>About fifteen minutes.</em>', es: 'Unos quince minutos.' },
+          { who: 'Turista', text: 'Do you accept card?', es: '¿Acepta tarjeta?' },
+          { who: 'Tú', text: '<em>Yes! Cash or card, no problem.</em>', es: '¡Sí! Efectivo o tarjeta, sin problema.' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases de precio y tiempo',
+        cards: [
+          { front: '¿Cuánto cuesta?', back: 'How much is it?', pron: 'jau mach iz it' },
+          { front: 'El total es...', back: 'The total is...', pron: 'de TO-tal iz' },
+          { front: 'Unos 20 minutos', back: 'About twenty minutes', pron: 'a-BAUT TWEN-ti MIN-its' },
+          { front: 'Efectivo o tarjeta', back: 'Cash or card', pron: 'kash or kard' },
+          { front: 'No hay problema', back: 'No problem', pron: 'nou PROB-lem' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Practica respondiendo',
+        questions: [
+          { sentence: 'It\'s ___ twenty dollars.', blank: '___', answer: 'about', options: ['about','exactly','only','more'], explanation: '"About" significa "aproximadamente". Perfecto para dar precios aproximados.' },
+          { sentence: '___ or card, no problem!', blank: '___', answer: 'Cash', options: ['Cash','Money','Pay','Dollar'], explanation: '"Cash" es efectivo. "Card" es tarjeta. Frases muy útiles al cobrar.' },
+          { sentence: 'About fifteen ___!', blank: '___', answer: 'minutes', options: ['minutes','hours','days','miles'], explanation: '"Minutes" son los minutos. Siempre en plural cuando dices cantidades de tiempo.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2, moduleId: 0,
+    title: 'Destinations',
+    sub: 'Preguntar y confirmar destinos',
+    xp: 60,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🗺️ El turista entra al taxi. Lo primero que debes preguntar: ¿a dónde va?',
+        content: 'Hoy aprendes a preguntar el destino, confirmar que lo entendiste y nombrar los lugares más comunes que visitan los turistas.'
+      },
+      {
+        type: 'vocab',
+        title: 'Destinos y lugares',
+        words: [
+          { en: 'Where to?', pron: 'wer tu', es: '¿A dónde?' },
+          { en: 'The airport', pron: 'di EIR-port', es: 'El aeropuerto' },
+          { en: 'The hotel', pron: 'de jo-TEL', es: 'El hotel' },
+          { en: 'The city center', pron: 'de SIT-i SEN-ter', es: 'El centro de la ciudad' },
+          { en: 'The market', pron: 'de MAR-kit', es: 'El mercado' },
+          { en: 'Got it!', pron: 'got it', es: '¡Entendido!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Confirmando el destino',
+        scene: 'Pasajero recién subido al taxi',
+        lines: [
+          { who: 'Tú', text: '<em>Hello! Where to?</em>', es: '¡Hola! ¿A dónde?' },
+          { who: 'Turista', text: 'To the city center, please.', es: 'Al centro, por favor.' },
+          { who: 'Tú', text: '<em>The city center. Got it!</em>', es: 'El centro. ¡Entendido!' },
+          { who: 'Turista', text: 'Yes, near the main square.', es: 'Sí, cerca de la plaza principal.' },
+          { who: 'Tú', text: '<em>No problem, I know it well!</em>', es: 'Sin problema, ¡lo conozco bien!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Destinos importantes',
+        cards: [
+          { front: '¿A dónde?', back: 'Where to?', pron: 'wer tu' },
+          { front: 'El aeropuerto', back: 'The airport', pron: 'di EIR-port' },
+          { front: 'El hotel', back: 'The hotel', pron: 'de jo-TEL' },
+          { front: 'El mercado', back: 'The market', pron: 'de MAR-kit' },
+          { front: 'Entendido', back: 'Got it!', pron: 'got it' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Confirma el destino',
+        questions: [
+          { sentence: 'Hello! ___ to?', blank: '___', answer: 'Where', options: ['Where','What','How','Who'], explanation: '"Where to?" es la pregunta más usada por taxistas en inglés. Corta y directa.' },
+          { sentence: 'No problem, I ___ it well!', blank: '___', answer: 'know', options: ['know','see','have','go'], explanation: '"I know it well" significa "lo conozco bien". Da confianza al turista.' },
+          { sentence: 'The city center. ___ it!', blank: '___', answer: 'Got', options: ['Got','Get','Have','Take'], explanation: '"Got it!" es una expresión muy natural que significa "Entendido". Úsala siempre.' }
+        ]
+      }
+    ]
+  },
+  // ── MÓDULO 2 ──────────────────────────────────────────────
+  {
+    id: 3, moduleId: 1,
+    title: 'Turn Left, Turn Right',
+    sub: 'Direcciones básicas',
+    xp: 65,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🧭 El GPS falla. El turista te pide que le expliques por dónde van. ¿Puedes?',
+        content: 'Esta semana aprendes a dar direcciones claras y a explicar el camino sin depender solo del GPS. Frases simples que usarás en cada carrera.'
+      },
+      {
+        type: 'vocab',
+        title: 'Frases de dirección',
+        words: [
+          { en: 'Turn left', pron: 'tern left', es: 'Gira a la izquierda' },
+          { en: 'Turn right', pron: 'tern rait', es: 'Gira a la derecha' },
+          { en: 'Go straight', pron: 'go streit', es: 'Sigue recto' },
+          { en: 'We\'re almost there', pron: 'wir OL-most der', es: 'Ya casi llegamos' },
+          { en: 'At the traffic light', pron: 'at de TRAF-ik lait', es: 'En el semáforo' },
+          { en: 'In two minutes', pron: 'in tu MIN-its', es: 'En dos minutos' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Guiando por la ciudad',
+        scene: 'Turista curioso que quiere saber el camino',
+        lines: [
+          { who: 'Turista', text: 'Which way are we going?', es: '¿Por dónde vamos?' },
+          { who: 'Tú', text: '<em>We go straight here,</em> then <em>turn left at the traffic light.</em>', es: 'Vamos recto aquí, luego giramos a la izquierda en el semáforo.' },
+          { who: 'Turista', text: 'Are we far?', es: '¿Estamos lejos?' },
+          { who: 'Tú', text: '<em>No! We\'re almost there. In two minutes.</em>', es: '¡No! Ya casi llegamos. En dos minutos.' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Direcciones de memoria',
+        cards: [
+          { front: 'Gira a la izquierda', back: 'Turn left', pron: 'tern left' },
+          { front: 'Gira a la derecha', back: 'Turn right', pron: 'tern rait' },
+          { front: 'Sigue recto', back: 'Go straight', pron: 'go streit' },
+          { front: 'En el semáforo', back: 'At the traffic light', pron: 'at de TRAF-ik lait' },
+          { front: 'Ya casi llegamos', back: 'We\'re almost there', pron: 'wir OL-most der' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Da las direcciones',
+        questions: [
+          { sentence: 'Go ___ on this street.', blank: '___', answer: 'straight', options: ['straight','left','fast','slow'], explanation: '"Go straight" significa ir recto. Es la instrucción más común en cualquier ruta.' },
+          { sentence: 'Turn ___ at the corner.', blank: '___', answer: 'right', options: ['right','straight','back','up'], explanation: '"Turn right" gira a la derecha. "Turn left" gira a la izquierda. Básico para cualquier carrera.' },
+          { sentence: 'We\'re ___ there!', blank: '___', answer: 'almost', options: ['almost','never','not','still'], explanation: '"We\'re almost there" tranquiliza al turista cuando ya falta poco. Muy útil.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 4, moduleId: 1,
+    title: 'Traffic & Delays',
+    sub: 'Manejar imprevistos',
+    xp: 65,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🚦 Hay trancón. El turista se pone nervioso. ¿Cómo le explicas la situación?',
+        content: 'El tráfico es parte del trabajo. Hoy aprendes a manejar estas situaciones con calma y las palabras correctas para que el turista confíe en ti.'
+      },
+      {
+        type: 'vocab',
+        title: 'Vocabulario de tráfico',
+        words: [
+          { en: 'There\'s traffic', pron: 'ders TRAF-ik', es: 'Hay tráfico' },
+          { en: 'I\'ll take another route', pron: 'ail teik a-NOTH-er rut', es: 'Tomaré otra ruta' },
+          { en: 'I\'m sorry for the delay', pron: 'aim SOR-i for de de-LEI', es: 'Perdón por el retraso' },
+          { en: 'Don\'t worry', pron: 'dont WUR-i', es: 'No te preocupes' },
+          { en: 'We\'ll be there soon', pron: 'wil bi der sun', es: 'Llegaremos pronto' },
+          { en: 'A few more minutes', pron: 'a fyu mor MIN-its', es: 'Unos minutos más' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Manejando el trancón',
+        scene: 'Tráfico inesperado en el centro',
+        lines: [
+          { who: 'Turista', text: 'Is there a problem?', es: '¿Hay algún problema?' },
+          { who: 'Tú', text: '<em>There\'s traffic ahead. I\'m sorry for the delay.</em>', es: 'Hay tráfico adelante. Perdón por el retraso.' },
+          { who: 'Turista', text: 'Will we be late?', es: '¿Llegaremos tarde?' },
+          { who: 'Tú', text: '<em>Don\'t worry! I\'ll take another route.</em>', es: '¡No te preocupes! Tomaré otra ruta.' },
+          { who: 'Turista', text: 'Thank you!', es: '¡Gracias!' },
+          { who: 'Tú', text: '<em>We\'ll be there soon. A few more minutes.</em>', es: 'Llegaremos pronto. Unos minutos más.' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases para imprevistos',
+        cards: [
+          { front: 'Hay tráfico', back: 'There\'s traffic', pron: 'ders TRAF-ik' },
+          { front: 'Tomaré otra ruta', back: 'I\'ll take another route', pron: 'ail teik a-NOTH-er rut' },
+          { front: 'Perdón por el retraso', back: 'I\'m sorry for the delay', pron: 'aim SOR-i for de de-LEI' },
+          { front: 'No te preocupes', back: 'Don\'t worry', pron: 'dont WUR-i' },
+          { front: 'Llegaremos pronto', back: 'We\'ll be there soon', pron: 'wil bi der sun' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Responde al turista',
+        questions: [
+          { sentence: 'There\'s ___ ahead, I\'m sorry.', blank: '___', answer: 'traffic', options: ['traffic','rain','work','time'], explanation: '"There\'s traffic" es la forma natural de decir que hay trancón o tráfico.' },
+          { sentence: 'Don\'t ___! I\'ll take another route.', blank: '___', answer: 'worry', options: ['worry','run','stop','go'], explanation: '"Don\'t worry" es muy tranquilizador. Los turistas lo aprecian muchísimo.' },
+          { sentence: 'We\'ll be ___ soon!', blank: '___', answer: 'there', options: ['there','here','gone','lost'], explanation: '"We\'ll be there soon" — usamos "there" porque el destino está adelante.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 5, moduleId: 1,
+    title: 'Weather & Small Talk',
+    sub: 'Conversación durante el trayecto',
+    xp: 70,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '☁️ El viaje va bien pero hay silencio incómodo. El turista parece querer conversar.',
+        content: 'El small talk — conversación ligera — es lo que convierte un taxi en una experiencia memorable. Hoy aprendes a hablar del clima y hacer preguntas simples que rompen el hielo.'
+      },
+      {
+        type: 'vocab',
+        title: 'Vocabulario del clima y conversación',
+        words: [
+          { en: 'What a beautiful day!', pron: 'wat a BYU-ti-ful dei', es: '¡Qué día tan lindo!' },
+          { en: 'It\'s very hot today', pron: 'its VER-i jot tu-DEI', es: 'Hace mucho calor hoy' },
+          { en: 'Is this your first time here?', pron: 'iz dis yor ferst taim jir', es: '¿Es tu primera vez aquí?' },
+          { en: 'Where are you from?', pron: 'wer ar yu from', es: '¿De dónde eres?' },
+          { en: 'Are you enjoying the city?', pron: 'ar yu en-JOI-in de SIT-i', es: '¿Estás disfrutando la ciudad?' },
+          { en: 'I hope you enjoy it!', pron: 'ai joup yu en-JOI it', es: '¡Espero que lo disfrutes!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Conversación en el trayecto',
+        scene: 'Viaje de 20 minutos al hotel',
+        lines: [
+          { who: 'Tú', text: '<em>What a beautiful day!</em>', es: '¡Qué día tan lindo!' },
+          { who: 'Turista', text: 'Yes! The weather is amazing here.', es: 'Sí, el clima aquí es increíble.' },
+          { who: 'Tú', text: '<em>Is this your first time here?</em>', es: '¿Es tu primera vez aquí?' },
+          { who: 'Turista', text: 'Yes, first time! Very excited!', es: 'Sí, ¡primera vez! Muy emocionado.' },
+          { who: 'Tú', text: '<em>You will love it! Are you enjoying the city?</em>', es: '¡Te va a encantar! ¿Estás disfrutando la ciudad?' },
+          { who: 'Turista', text: 'Yes! It\'s wonderful!', es: 'Sí, ¡es maravillosa!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Small talk esencial',
+        cards: [
+          { front: '¿Primera vez aquí?', back: 'Is this your first time?', pron: 'iz dis yor ferst taim' },
+          { front: '¿De dónde eres?', back: 'Where are you from?', pron: 'wer ar yu from' },
+          { front: '¡Qué día lindo!', back: 'What a beautiful day!', pron: 'wat a BYU-ti-ful dei' },
+          { front: '¿Disfrutando la ciudad?', back: 'Enjoying the city?', pron: 'en-JOI-in de SIT-i' },
+          { front: '¡Te va a encantar!', back: 'You will love it!', pron: 'yu wil lov it' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Rompe el hielo',
+        questions: [
+          { sentence: 'Is this your ___ time here?', blank: '___', answer: 'first', options: ['first','last','only','next'], explanation: '"First time" = primera vez. Siempre genera una conversación interesante con el turista.' },
+          { sentence: 'Where are you ___?', blank: '___', answer: 'from', options: ['from','going','staying','coming'], explanation: '"Where are you from?" es una de las preguntas más comunes y útiles en inglés.' },
+          { sentence: 'You will ___ it!', blank: '___', answer: 'love', options: ['love','like','see','know'], explanation: '"You will love it!" expresa entusiasmo. Mucho más cálido que "You will like it".' }
+        ]
+      }
+    ]
+  },
+  // ── MÓDULO 3 ──────────────────────────────────────────────
+  {
+    id: 6, moduleId: 2,
+    title: 'This Is...',
+    sub: 'Describir lugares con confianza',
+    xp: 75,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🏛️ Pasas frente a un lugar famoso de tu ciudad. El turista te pregunta qué es.',
+        content: 'Hoy aprendes la estructura básica para presentar lugares, darles contexto y hacer que el turista se sienta en un tour real dentro de tu taxi.'
+      },
+      {
+        type: 'vocab',
+        title: 'Frases para describir lugares',
+        words: [
+          { en: 'This is...', pron: 'dis iz', es: 'Esto es...' },
+          { en: 'One of the most famous...', pron: 'wan ov de moust FEI-mos', es: 'Uno de los más famosos...' },
+          { en: 'It was built in...', pron: 'it wos bilt in', es: 'Fue construido en...' },
+          { en: 'Very popular with tourists', pron: 'VER-i POP-yu-lar wid TUR-ists', es: 'Muy popular entre turistas' },
+          { en: 'You should visit', pron: 'yu shud VIZ-it', es: 'Deberías visitar' },
+          { en: 'It\'s worth seeing', pron: 'its werth SEE-in', es: 'Vale la pena verlo' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Tour improvisado',
+        scene: 'Pasando por el centro histórico',
+        lines: [
+          { who: 'Turista', text: 'What is that building?', es: '¿Qué es ese edificio?' },
+          { who: 'Tú', text: '<em>This is the main cathedral. One of the most famous in the region.</em>', es: 'Esta es la catedral principal. Una de las más famosas de la región.' },
+          { who: 'Turista', text: 'Wow! How old is it?', es: '¡Guau! ¿Cuántos años tiene?' },
+          { who: 'Tú', text: '<em>It was built in 1580. Very old!</em>', es: 'Fue construida en 1580. ¡Muy antigua!' },
+          { who: 'Turista', text: 'Can I visit inside?', es: '¿Puedo visitar el interior?' },
+          { who: 'Tú', text: '<em>Yes! You should visit. It\'s worth seeing!</em>', es: '¡Sí! Deberías visitarla. ¡Vale la pena verla!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases de guía',
+        cards: [
+          { front: 'Esto es...', back: 'This is...', pron: 'dis iz' },
+          { front: 'Fue construido en...', back: 'It was built in...', pron: 'it wos bilt in' },
+          { front: 'Muy famoso', back: 'Very famous', pron: 'VER-i FEI-mos' },
+          { front: 'Deberías visitar', back: 'You should visit', pron: 'yu shud VIZ-it' },
+          { front: 'Vale la pena', back: 'It\'s worth it', pron: 'its werth it' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Presenta el lugar',
+        questions: [
+          { sentence: '___ is the main church of the city.', blank: '___', answer: 'This', options: ['This','That','Here','There'], explanation: '"This is" se usa para presentar algo que está cerca o que estás señalando en el momento.' },
+          { sentence: 'It was ___ in 1900.', blank: '___', answer: 'built', options: ['built','made','done','started'], explanation: '"Built" es el pasado de "build" (construir). Esencial para hablar de edificios históricos.' },
+          { sentence: 'You ___ visit this place!', blank: '___', answer: 'should', options: ['should','must','can','will'], explanation: '"Should" hace una recomendación suave y amigable. Es la palabra perfecta para un guía.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 7, moduleId: 2,
+    title: 'Food & Local Tips',
+    sub: 'Recomendar restaurantes y experiencias',
+    xp: 75,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🍽️ El turista te pregunta dónde comer bien y barato. Esta es tu oportunidad de brillar.',
+        content: 'Los turistas confían más en los taxistas que en cualquier app. Hoy aprendes a hacer recomendaciones de comida y experiencias locales con fluidez y calidez.'
+      },
+      {
+        type: 'vocab',
+        title: 'Vocabulario de comida y recomendaciones',
+        words: [
+          { en: 'I recommend...', pron: 'ai rek-o-MEND', es: 'Te recomiendo...' },
+          { en: 'The best place for food', pron: 'de best pleis for fud', es: 'El mejor lugar para comer' },
+          { en: 'You must try...', pron: 'yu mast trai', es: 'Debes probar...' },
+          { en: 'Local food', pron: 'LOU-kal fud', es: 'Comida local / típica' },
+          { en: 'It\'s delicious', pron: 'its de-LISH-os', es: 'Es delicioso' },
+          { en: 'Not too expensive', pron: 'not tu eks-PEN-siv', es: 'No muy caro' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Recomendando como local',
+        scene: 'Turista buscando dónde comer',
+        lines: [
+          { who: 'Turista', text: 'Do you know a good restaurant?', es: '¿Conoces un buen restaurante?' },
+          { who: 'Tú', text: '<em>Yes! I recommend the market. The best place for local food.</em>', es: 'Sí, te recomiendo el mercado. El mejor lugar para comida local.' },
+          { who: 'Turista', text: 'What should I try?', es: '¿Qué debo probar?' },
+          { who: 'Tú', text: '<em>You must try the bandeja paisa. It\'s delicious!</em>', es: '¡Debes probar la bandeja paisa. Es deliciosa!' },
+          { who: 'Turista', text: 'Is it expensive?', es: '¿Es caro?' },
+          { who: 'Tú', text: '<em>No! Not too expensive. Very good price.</em>', es: '¡No! No muy caro. Muy buen precio.' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases de recomendación',
+        cards: [
+          { front: 'Te recomiendo...', back: 'I recommend...', pron: 'ai rek-o-MEND' },
+          { front: 'Debes probar...', back: 'You must try...', pron: 'yu mast trai' },
+          { front: 'Comida local', back: 'Local food', pron: 'LOU-kal fud' },
+          { front: 'Es delicioso', back: 'It\'s delicious', pron: 'its de-LISH-os' },
+          { front: 'Buen precio', back: 'Good price', pron: 'gud prais' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Haz la recomendación',
+        questions: [
+          { sentence: 'I ___ the central market for food.', blank: '___', answer: 'recommend', options: ['recommend','suggest','know','like'], explanation: '"I recommend" es la forma más natural de hacer una recomendación en inglés.' },
+          { sentence: 'You must ___ the local dishes!', blank: '___', answer: 'try', options: ['try','eat','cook','make'], explanation: '"You must try" suena más emocionante y directo que "you should eat". Invita a la experiencia.' },
+          { sentence: 'It\'s ___! Very good food.', blank: '___', answer: 'delicious', options: ['delicious','nice','okay','fine'], explanation: '"Delicious" transmite entusiasmo real. Es la mejor palabra para recomendar comida.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 8, moduleId: 2,
+    title: 'Storytelling',
+    sub: 'Contar una historia simple',
+    xp: 80,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '📖 El turista quiere saber la historia detrás de un lugar. Tú eres su guía.',
+        content: 'Contar una historia simple en inglés es lo que diferencia un taxi de un tour. Hoy aprendes la estructura básica: pasado simple y conectores narrativos.'
+      },
+      {
+        type: 'vocab',
+        title: 'Conectores narrativos',
+        words: [
+          { en: 'A long time ago...', pron: 'a lon taim a-GOU', es: 'Hace mucho tiempo...' },
+          { en: 'Then / After that', pron: 'den / AF-ter dat', es: 'Luego / Después de eso' },
+          { en: 'Finally', pron: 'FAI-nal-i', es: 'Finalmente' },
+          { en: 'It happened here', pron: 'it JAP-end jir', es: 'Ocurrió aquí' },
+          { en: 'People say that...', pron: 'PI-pol sei dat', es: 'La gente dice que...' },
+          { en: 'It\'s a great story!', pron: 'its a greit STOR-i', es: '¡Es una gran historia!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Contando la historia de la plaza',
+        scene: 'Pasando por la plaza histórica de tu ciudad',
+        lines: [
+          { who: 'Turista', text: 'What happened here?', es: '¿Qué ocurrió aquí?' },
+          { who: 'Tú', text: '<em>A long time ago, this was the main market of the city.</em>', es: 'Hace mucho tiempo, este era el mercado principal de la ciudad.' },
+          { who: 'Tú', text: '<em>Then, they built the square. People say it took 50 years.</em>', es: 'Luego construyeron la plaza. La gente dice que tomó 50 años.' },
+          { who: 'Turista', text: 'Wow, that\'s amazing!', es: '¡Guau, eso es increíble!' },
+          { who: 'Tú', text: '<em>Yes! It\'s a great story. This city has many!</em>', es: '¡Sí! Es una gran historia. ¡Esta ciudad tiene muchas!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Narrativa simple',
+        cards: [
+          { front: 'Hace mucho tiempo', back: 'A long time ago', pron: 'a lon taim a-GOU' },
+          { front: 'Luego / Después', back: 'Then / After that', pron: 'den / AF-ter dat' },
+          { front: 'La gente dice que...', back: 'People say that...', pron: 'PI-pol sei dat' },
+          { front: 'Ocurrió aquí', back: 'It happened here', pron: 'it JAP-end jir' },
+          { front: 'Finalmente', back: 'Finally', pron: 'FAI-nal-i' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Cuenta la historia',
+        questions: [
+          { sentence: 'A long time ___, this was a jungle.', blank: '___', answer: 'ago', options: ['ago','before','back','past'], explanation: '"A long time ago" = hace mucho tiempo. Es el comienzo clásico de cualquier historia.' },
+          { sentence: '___, they built the main church.', blank: '___', answer: 'Then', options: ['Then','After','Before','Next'], explanation: '"Then" conecta eventos en el tiempo. Simple y muy efectivo al narrar.' },
+          { sentence: 'People ___ that there is treasure here!', blank: '___', answer: 'say', options: ['say','tell','speak','talk'], explanation: '"People say that..." es perfecto para compartir leyendas o historias locales.' }
+        ]
+      }
+    ]
+  },
+  // ── MÓDULO 4 ──────────────────────────────────────────────
+  {
+    id: 9, moduleId: 3,
+    title: 'Payments & Tips',
+    sub: 'Cobrar con profesionalismo',
+    xp: 80,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '💳 Llegaron al destino. Es momento de cobrar. ¿Lo haces con confianza en inglés?',
+        content: 'El momento del pago es crítico. Con las frases correctas, transmites profesionalismo y abres la puerta a mejores propinas. Hoy las dominas.'
+      },
+      {
+        type: 'vocab',
+        title: 'Frases de pago',
+        words: [
+          { en: 'We have arrived', pron: 'wi jav a-RAIVD', es: 'Hemos llegado' },
+          { en: 'The total is...', pron: 'de TO-tal iz', es: 'El total es...' },
+          { en: 'Do you have change?', pron: 'du yu jav cheinch', es: '¿Tienes cambio?' },
+          { en: 'Keep the change', pron: 'kip de cheinch', es: 'Quédese con el cambio' },
+          { en: 'Here\'s your receipt', pron: 'jirz yor re-SIT', es: 'Aquí está su recibo' },
+          { en: 'Thank you very much!', pron: 'tank yu VER-i mach', es: '¡Muchas gracias!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Cobro al llegar',
+        scene: 'Llegando al hotel del turista',
+        lines: [
+          { who: 'Tú', text: '<em>Here we are! We have arrived.</em>', es: '¡Llegamos! Hemos llegado.' },
+          { who: 'Turista', text: 'Great! How much?', es: '¡Genial! ¿Cuánto es?' },
+          { who: 'Tú', text: '<em>The total is eighteen dollars, please.</em>', es: 'El total son dieciocho dólares, por favor.' },
+          { who: 'Turista', text: 'Here\'s twenty. Keep the change!', es: 'Aquí tienes veinte. ¡Quédate con el cambio!' },
+          { who: 'Tú', text: '<em>Thank you very much! Have a great stay!</em>', es: '¡Muchas gracias! ¡Que tenga una estancia increíble!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases de cobro',
+        cards: [
+          { front: 'Hemos llegado', back: 'We have arrived', pron: 'wi jav a-RAIVD' },
+          { front: 'El total es...', back: 'The total is...', pron: 'de TO-tal iz' },
+          { front: 'Quédese con el cambio', back: 'Keep the change', pron: 'kip de cheinch' },
+          { front: 'Aquí su recibo', back: 'Here\'s your receipt', pron: 'jirz yor re-SIT' },
+          { front: 'Que tenga buen día', back: 'Have a great day!', pron: 'jav a greit dei' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Cierra la carrera',
+        questions: [
+          { sentence: 'Here we ___! We have arrived.', blank: '___', answer: 'are', options: ['are','go','come','stop'], explanation: '"Here we are!" es la frase natural para anunciar que llegaron al destino.' },
+          { sentence: 'The ___ is twenty dollars.', blank: '___', answer: 'total', options: ['total','price','cost','pay'], explanation: '"The total is..." es más profesional que solo decir el número solo.' },
+          { sentence: 'Have a ___ stay!', blank: '___', answer: 'great', options: ['great','good','nice','happy'], explanation: '"Great" es más expresivo y cálido. Deja una impresión memorable al despedirse.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 10, moduleId: 3,
+    title: 'Problems & Emergencies',
+    sub: 'Frases de rescate y situaciones difíciles',
+    xp: 85,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '🆘 No entiendes lo que dice el turista. O hay una emergencia. ¿Qué haces?',
+        content: 'Esta semana aprendes las "frases de rescate" — las que necesitas cuando la conversación se complica. También vocabulario básico para emergencias.'
+      },
+      {
+        type: 'vocab',
+        title: 'Frases de rescate',
+        words: [
+          { en: 'I\'m sorry, I don\'t understand', pron: 'aim SOR-i ai dont un-der-STAND', es: 'Lo siento, no entiendo' },
+          { en: 'Can you repeat that?', pron: 'kan yu ri-PIT dat', es: '¿Puede repetir eso?' },
+          { en: 'Can you speak slowly?', pron: 'kan yu spik SLOW-li', es: '¿Puede hablar despacio?' },
+          { en: 'Can you write it?', pron: 'kan yu rait it', es: '¿Puede escribirlo?' },
+          { en: 'Is everything okay?', pron: 'iz EV-ri-tin ou-KEI', es: '¿Está todo bien?' },
+          { en: 'Call the police!', pron: 'kol de po-LIS', es: '¡Llame a la policía!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'Manejando la confusión',
+        scene: 'Turista habla muy rápido y no entiendes',
+        lines: [
+          { who: 'Turista', text: 'Canyougotothe...blablabla fast...', es: '(habla muy rápido)' },
+          { who: 'Tú', text: '<em>I\'m sorry, I don\'t understand. Can you speak slowly?</em>', es: 'Lo siento, no entiendo. ¿Puede hablar despacio?' },
+          { who: 'Turista', text: 'Oh sorry! I want to go to... Laureles?', es: 'Oh perdón. Quiero ir a... ¿Laureles?' },
+          { who: 'Tú', text: '<em>Laureles? Got it! No problem.</em>', es: '¿Laureles? ¡Entendido! Sin problema.' },
+          { who: 'Turista', text: 'Thank you for your patience!', es: 'Gracias por su paciencia.' },
+          { who: 'Tú', text: '<em>No problem at all! Is everything okay?</em>', es: 'No hay problema. ¿Está todo bien?' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Frases de rescate',
+        cards: [
+          { front: 'No entiendo', back: 'I don\'t understand', pron: 'ai dont un-der-STAND' },
+          { front: '¿Puede repetir?', back: 'Can you repeat?', pron: 'kan yu ri-PIT' },
+          { front: '¿Más despacio?', back: 'More slowly, please', pron: 'mor SLOW-li pliz' },
+          { front: '¿Está todo bien?', back: 'Is everything okay?', pron: 'iz EV-ri-tin ou-KEI' },
+          { front: 'No hay problema', back: 'No problem at all', pron: 'nou PROB-lem at ol' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'Usa las frases de rescate',
+        questions: [
+          { sentence: 'I\'m sorry, I don\'t ___.', blank: '___', answer: 'understand', options: ['understand','hear','speak','know'], explanation: '"I don\'t understand" es honesto y respetuoso. Siempre mejor que adivinar y equivocarse.' },
+          { sentence: 'Can you speak more ___?', blank: '___', answer: 'slowly', options: ['slowly','fast','loud','clear'], explanation: '"Slowly" significa despacio. Pedir que hablen despacio es completamente normal.' },
+          { sentence: 'Is ___ okay?', blank: '___', answer: 'everything', options: ['everything','anything','something','nothing'], explanation: '"Is everything okay?" muestra que te importa el bienestar del pasajero.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 11, moduleId: 3,
+    title: 'Goodbye & Reviews',
+    sub: 'Despedidas perfectas y dejar huella',
+    xp: 90,
+    steps: [
+      {
+        type: 'intro',
+        title: 'Escena del día',
+        scene: '⭐ Llegaron. El turista quedó feliz. ¿Cómo cierras con broche de oro?',
+        content: 'La despedida es lo que más recuerda el turista. Hoy aprendes a cerrar cada carrera con clase, pedir una reseña amablemente y dejar una impresión que no olvidarán.'
+      },
+      {
+        type: 'vocab',
+        title: 'Frases de despedida',
+        words: [
+          { en: 'It was a pleasure!', pron: 'it wos a PLEJ-er', es: '¡Fue un placer!' },
+          { en: 'I hope you enjoy your stay', pron: 'ai joup yu en-JOI yor stei', es: 'Espero que disfrutes tu estancia' },
+          { en: 'If you need a driver again...', pron: 'if yu nid a DRAI-ver a-GEN', es: 'Si necesitas un conductor de nuevo...' },
+          { en: 'Here\'s my card', pron: 'jirz mai kard', es: 'Aquí está mi tarjeta' },
+          { en: 'Please leave a review', pron: 'pliz liv a re-VYU', es: 'Por favor deja una reseña' },
+          { en: 'Safe travels!', pron: 'seif TRAV-els', es: '¡Buen viaje!' }
+        ]
+      },
+      {
+        type: 'dialog',
+        title: 'El cierre perfecto',
+        scene: 'Llegando al aeropuerto, despidiéndose',
+        lines: [
+          { who: 'Tú', text: '<em>Here we are! The airport. Safe travels!</em>', es: '¡Aquí estamos! El aeropuerto. ¡Buen viaje!' },
+          { who: 'Turista', text: 'Thank you so much! You\'re the best driver!', es: '¡Muchas gracias! ¡Eres el mejor conductor!' },
+          { who: 'Tú', text: '<em>It was a pleasure! I hope you enjoy your stay.</em>', es: '¡Fue un placer! Espero que hayas disfrutado tu estancia.' },
+          { who: 'Turista', text: 'I loved the city!', es: '¡Amé la ciudad!' },
+          { who: 'Tú', text: '<em>Great! If you need a driver again, here\'s my card.</em>', es: 'Excelente. Si necesitas conductor de nuevo, aquí está mi tarjeta.' },
+          { who: 'Tú', text: '<em>Please leave a review. It helps a lot!</em>', es: 'Por favor deja una reseña. ¡Ayuda mucho!' }
+        ]
+      },
+      {
+        type: 'flashcards',
+        title: 'Cierre con clase',
+        cards: [
+          { front: 'Fue un placer', back: 'It was a pleasure!', pron: 'it wos a PLEJ-er' },
+          { front: 'Buen viaje', back: 'Safe travels!', pron: 'seif TRAV-els' },
+          { front: 'Aquí mi tarjeta', back: 'Here\'s my card', pron: 'jirz mai kard' },
+          { front: 'Por favor una reseña', back: 'Please leave a review', pron: 'pliz liv a re-VYU' },
+          { front: 'Cuídate mucho', back: 'Take care!', pron: 'teik ker' }
+        ]
+      },
+      {
+        type: 'fitb',
+        title: 'El cierre perfecto',
+        questions: [
+          { sentence: 'It was a ___!', blank: '___', answer: 'pleasure', options: ['pleasure','trip','ride','time'], explanation: '"It was a pleasure!" es elegante y cálido. Eleva cualquier despedida.' },
+          { sentence: '___ travels!', blank: '___', answer: 'Safe', options: ['Safe','Good','Happy','Nice'], explanation: '"Safe travels!" es el equivalente de "¡Buen viaje!" — siempre bienvenido al despedirse.' },
+          { sentence: 'Please leave a ___!', blank: '___', answer: 'review', options: ['review','star','note','like'], explanation: '"Leave a review" pide una reseña. Amable, directo y muy profesional.' }
+        ]
+      }
+    ]
+  }
+];
+
+// ============================================================
+// STATE & STORAGE
+// ============================================================
+let state = {
+  completed: [],    // week ids completados
+  streak: 0,
+  lastDate: null,
+  xp: 0,
+  streakDays: []    // fechas YYYY-MM-DD
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('driver_english_v2');
+    if (s) state = JSON.parse(s);
+  } catch(e){}
+}
+
+function saveState() {
+  try { localStorage.setItem('driver_english_v2', JSON.stringify(state)); } catch(e){}
+}
+
+function markToday() {
+  const today = new Date().toISOString().slice(0,10);
+  if (!state.streakDays.includes(today)) {
+    state.streakDays.push(today);
+    // calculate streak
+    let streak = 0;
+    let d = new Date();
+    while(true) {
+      const ds = d.toISOString().slice(0,10);
+      if(state.streakDays.includes(ds)) { streak++; d.setDate(d.getDate()-1); }
+      else break;
+    }
+    state.streak = streak;
+    state.lastDate = today;
+    saveState();
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentScreen = 'home';
+let currentModuleId = 0;
+let currentWeekId = 0;
+let currentStep = 0;
+let currentStepData = [];
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-' + name).classList.remove('hidden');
+  currentScreen = name;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if(name === 'home') document.getElementById('nav-home').classList.add('active');
+  if(name === 'progress') { document.getElementById('nav-progress').classList.add('active'); renderProgress(); }
+  if(name === 'home') renderHome();
+}
+
+// ============================================================
+// HOME RENDER
+// ============================================================
+function renderHome() {
+  const done = state.completed.length;
+  document.getElementById('weeks-done').textContent = done;
+  document.getElementById('total-progress-bar').style.width = (done/12*100)+'%';
+  document.getElementById('streak-count').textContent = state.streak;
+
+  const grid = document.getElementById('modules-grid');
+  grid.innerHTML = '';
+
+  MODULES.forEach(mod => {
+    const modWeeks = mod.weeks;
+    const modDone = modWeeks.filter(w => state.completed.includes(w)).length;
+    const pct = Math.round(modDone / modWeeks.length * 100);
+    const isUnlocked = mod.id === 0 || state.completed.includes(MODULES[mod.id-1]?.weeks.slice(-1)[0]);
+    
+    const card = document.createElement('div');
+    card.className = 'module-card ' + (isUnlocked ? 'unlocked' : 'locked');
+    card.innerHTML = `
+      <div class="mc-header">
+        <div class="mc-num">${mod.num}</div>
+        <div class="mc-info">
+          <div class="mc-title">${mod.title}</div>
+          <div class="mc-sub">${mod.sub}</div>
+        </div>
+        ${isUnlocked ? `<div style="color:${mod.color};font-size:22px">${pct===100?'✓':'›'}</div>` : '<div class="lock-icon">🔒</div>'}
+      </div>
+      <div class="mc-progress">
+        <div class="mc-bar"><div class="mc-fill" style="width:${pct}%;background:${mod.color}"></div></div>
+        <div class="mc-pct">${pct}%</div>
+      </div>
+    `;
+    if(isUnlocked) card.onclick = () => openModule(mod.id);
+    grid.appendChild(card);
+  });
+}
+
+function openModule(modId) {
+  currentModuleId = modId;
+  const mod = MODULES[modId];
+  document.getElementById('ll-title').textContent = mod.title;
+  document.getElementById('ll-sub').textContent = mod.sub;
+
+  const list = document.getElementById('weeks-list');
+  list.innerHTML = '';
+
+  mod.weeks.forEach((wId, idx) => {
+    const week = WEEKS[wId];
+    const isDone = state.completed.includes(wId);
+    const prevDone = idx === 0 || state.completed.includes(mod.weeks[idx-1]);
+    const isActive = !isDone && prevDone;
+    const isLocked = !isDone && !prevDone;
+
+    const card = document.createElement('div');
+    card.className = 'week-card ' + (isDone?'done':isActive?'active-week':'locked-week');
+    card.innerHTML = `
+      <div class="wc-row">
+        <div class="wc-num">SEM. ${wId+1}</div>
+        <div class="wc-info">
+          <div class="wc-title">${week.title}</div>
+          <div class="wc-sub">${week.sub}</div>
+        </div>
+        <div class="wc-badge ${isDone?'done':isActive?'active':'todo'}">
+          ${isDone?'✓':isLocked?'🔒':'▶'}
+        </div>
+      </div>
+    `;
+    if(!isLocked) card.onclick = () => startLesson(wId);
+    list.appendChild(card);
+  });
+
+  showScreen('lessons');
+}
+
+// ============================================================
+// LESSON ENGINE
+// ============================================================
+function startLesson(weekId) {
+  currentWeekId = weekId;
+  currentStep = 0;
+  const week = WEEKS[weekId];
+  currentStepData = week.steps;
+
+  document.getElementById('lh-week').textContent = `SEM. ${weekId+1}`;
+  document.getElementById('lh-title').textContent = week.title;
+
+  showScreen('lesson');
+  renderStep();
+}
+
+function renderStep() {
+  const total = currentStepData.length;
+  const step = currentStepData[currentStep];
+  const pct = (currentStep / total * 100);
+
+  document.getElementById('step-counter').textContent = `${currentStep+1}/${total}`;
+  document.getElementById('lesson-prog-bar').style.width = pct+'%';
+
+  const body = document.getElementById('lesson-body');
+  body.innerHTML = '';
+
+  let html = '';
+
+  if(step.type === 'intro') {
+    html = `
+      <div class="step-type-label">📍 Escena del día</div>
+      <div class="phrase-card">
+        <div style="font-size:40px;margin-bottom:12px">${step.scene.split(' ')[0]}</div>
+        <div style="font-size:15px;color:var(--text);line-height:1.6">${step.scene.substring(2)}</div>
+      </div>
+      <div class="context-box">
+        <div class="context-scene">¿Qué aprenderás hoy?</div>
+        <p style="font-size:14px;color:var(--text);line-height:1.7">${step.content}</p>
+      </div>
+      <button class="btn-primary" onclick="nextStep()">¡Empezar! →</button>
+    `;
+  }
+
+  else if(step.type === 'vocab') {
+    const words = step.words.map(w => `
+      <div class="vocab-item" onclick="speakText('${w.en}')">
+        <div>
+          <div class="vi-en">${w.en}</div>
+          <div class="vi-pron">${w.pron}</div>
+        </div>
+        <div>
+          <div class="vi-es">${w.es}</div>
+        </div>
+        <div class="vi-speaker">🔊</div>
+      </div>
+    `).join('');
+    html = `
+      <div class="step-type-label">📚 Vocabulario — toca para escuchar</div>
+      <div class="vocab-grid">${words}</div>
+      <div class="tip-box">
+        <div class="tip-label">💡 Consejo</div>
+        <div class="tip-text">Toca cada palabra para escucharla. Repítela en voz alta 3 veces. Tu oído la memoriza más rápido que tu ojo.</div>
+      </div>
+      <button class="btn-primary" onclick="nextStep()">Continuar →</button>
+    `;
+  }
+
+  else if(step.type === 'dialog') {
+    const lines = step.lines.map(l => `
+      <div class="dialog-line">
+        <div class="dl-who">${l.who}</div>
+        <div>
+          <div class="dl-text" onclick="speakLine('${l.who}','${l.text.replace(/'/g,"\\'")}')">
+            ${l.text} <span style="font-size:12px;color:var(--muted)">🔊</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${l.es}</div>
+        </div>
+      </div>
+    `).join('');
+    html = `
+      <div class="step-type-label">💬 Diálogo real — toca para escuchar</div>
+      <div class="context-box">
+        <div class="context-scene">${step.scene}</div>
+        ${lines}
+      </div>
+      <button class="tts-btn" onclick="readWholeDialog()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        Escuchar diálogo completo
+      </button>
+      <button class="btn-primary" onclick="nextStep()">Continuar →</button>
+    `;
+  }
+
+  else if(step.type === 'flashcards') {
+    renderFlashcards(step.cards, body);
+    return;
+  }
+
+  else if(step.type === 'fitb') {
+    renderFITB(step.questions, 0, body);
+    return;
+  }
+
+  body.innerHTML = html;
+}
+
+// ── DIALOG LINES stored for reading ──
+let dialogLines = [];
+function readWholeDialog() {
+  const step = currentStepData[currentStep];
+  if(!step.lines) return;
+  let queue = step.lines.filter(l => l.text.includes('<em>')).map(l => {
+    return l.text.replace(/<[^>]+>/g,'');
+  });
+  let i = 0;
+  function next() {
+    if(i < queue.length) { speakText(queue[i++], next); }
+  }
+  next();
+}
+
+// ── FLASHCARDS ENGINE ──
+function renderFlashcards(cards, body) {
+  let fc = 0;
+  let flipped = false;
+
+  function draw() {
+    const card = cards[fc];
+    const dots = cards.map((_,i) => `<div class="fc-dot ${i<fc?'done':i===fc?'active':''}"></div>`).join('');
+    body.innerHTML = `
+      <div class="step-type-label">🃏 Flashcards — toca la carta para voltear</div>
+      <div class="fc-nav">
+        <div class="fc-counter">${fc+1} / ${cards.length}</div>
+        <div class="fc-dots">${dots}</div>
+        <div class="fc-arrows">
+          <div class="fc-arrow" onclick="fcPrev()">‹</div>
+          <div class="fc-arrow" onclick="fcNext()">›</div>
+        </div>
+      </div>
+      <div class="flashcard-wrapper" onclick="flipCard(this)">
+        <div class="flashcard" id="flashcard">
+          <div class="fc-face fc-front">
+            <div class="fc-label">Español</div>
+            <div class="fc-word">${card.front}</div>
+            <div class="fc-hint">Toca para ver en inglés</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-label">Inglés</div>
+            <div class="fc-word">${card.back}</div>
+            <div class="fc-pron">${card.pron}</div>
+            <button class="tts-btn" onclick="event.stopPropagation();speakText('${card.back}')" style="margin-top:8px;padding:7px 16px;font-size:12px">
+              <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              Escuchar
+            </button>
+          </div>
+        </div>
+      </div>
+      ${fc === cards.length-1 ? '<button class="btn-primary" onclick="nextStep()">Siguiente actividad →</button>' : '<button class="btn-secondary" onclick="fcNext()">Siguiente carta →</button>'}
+    `;
+    flipped = false;
+
+    window.flipCard = function(wrapper) {
+      const c = document.getElementById('flashcard');
+      flipped = !flipped;
+      c.classList.toggle('flipped', flipped);
+      if(flipped) speakText(card.back);
+    };
+    window.fcNext = function() { if(fc < cards.length-1) { fc++; draw(); } };
+    window.fcPrev = function() { if(fc > 0) { fc--; draw(); } };
+  }
+  draw();
+}
+
+// ── FITB ENGINE ──
+let fitbScore = 0;
+function renderFITB(questions, qi, body) {
+  if(qi === questions.length) {
+    body.innerHTML = `
+      <div class="completion-screen">
+        <span class="comp-emoji">🎯</span>
+        <div class="comp-title">¡Ejercicio completo!</div>
+        <div class="comp-sub">Respondiste ${fitbScore}/${questions.length} correctamente</div>
+        <button class="btn-primary" onclick="nextStep()">Terminar lección →</button>
+      </div>
+    `;
+    return;
+  }
+
+  const q = questions[qi];
+  const opts = q.options.map((o,i) => `
+    <button class="fitb-opt" onclick="checkFITB(this,'${o}','${q.answer}',${qi})">${o}</button>
+  `).join('');
+
+  body.innerHTML = `
+    <div class="step-type-label">✍️ Completa el diálogo (${qi+1}/${questions.length})</div>
+    <div class="phrase-card" style="margin-bottom:20px">
+      <div class="fitb-question">${q.sentence.replace('___', '<span class="fitb-blank">___</span>')}</div>
+    </div>
+    <div class="fitb-options">${opts}</div>
+    <div class="fitb-feedback" id="fitb-fb"></div>
+  `;
+
+  window.checkFITB = function(btn, chosen, answer, qi2) {
+    const opts2 = document.querySelectorAll('.fitb-opt');
+    opts2.forEach(o => o.classList.add('disabled'));
+
+    const fb = document.getElementById('fitb-fb');
+    if(chosen === answer) {
+      btn.classList.add('correct');
+      fitbScore++;
+      speakText(answer);
+      fb.className = 'fitb-feedback show correct';
+      fb.innerHTML = `✅ <strong>¡Correcto!</strong> "${answer}" — ${q.explanation}
+        <br><button class="btn-primary" style="margin-top:12px" onclick="renderFITB(window._fitbQ,${qi2+1},document.getElementById('lesson-body'))">Siguiente →</button>`;
+    } else {
+      btn.classList.add('wrong');
+      opts2.forEach(o => { if(o.textContent === answer) o.classList.add('correct'); });
+      fb.className = 'fitb-feedback show wrong';
+      fb.innerHTML = `❌ La respuesta es <strong>"${answer}"</strong> — ${q.explanation}
+        <br><button class="btn-primary" style="margin-top:12px" onclick="renderFITB(window._fitbQ,${qi2+1},document.getElementById('lesson-body'))">Continuar →</button>`;
+    }
+    fb.style.display='block';
+  };
+
+  window._fitbQ = questions;
+}
+
+// ============================================================
+// STEP NAVIGATION
+// ============================================================
+function nextStep() {
+  currentStep++;
+  if(currentStep >= currentStepData.length) {
+    completeLesson();
+  } else {
+    fitbScore = 0;
+    renderStep();
+    window.scrollTo(0,0);
+  }
+}
+
+function completeLesson() {
+  const week = WEEKS[currentWeekId];
+  if(!state.completed.includes(currentWeekId)) {
+    state.completed.push(currentWeekId);
+    state.xp += week.xp;
+    markToday();
+    saveState();
+  }
+
+  const body = document.getElementById('lesson-body');
+  body.innerHTML = `
+    <div class="completion-screen">
+      <span class="comp-emoji">🏆</span>
+      <div class="comp-title">¡Semana completada!</div>
+      <div class="comp-sub">${week.title}<br>Has ganado +${week.xp} XP. Sigue así, cada semana te acerca a hablar inglés con cualquier turista.</div>
+      <div class="xp-badge">⚡ +${week.xp} XP ganados</div>
+      <button class="btn-primary" onclick="showScreen('lessons')">Ver más lecciones</button>
+      <button class="btn-secondary" onclick="showScreen('home')">Ir al inicio</button>
+    </div>
+  `;
+  document.getElementById('lesson-prog-bar').style.width='100%';
+}
+
+// ============================================================
+// TTS
+// ============================================================
+let speaking = false;
+function speakText(text, cb) {
+  if(!window.speechSynthesis) return cb && cb();
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/<[^>]+>/g,'');
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = 'en-US';
+  utt.rate = 0.82;
+  utt.pitch = 1;
+  // Try to get a good English voice
+  const voices = window.speechSynthesis.getVoices();
+  const en = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google'))
+          || voices.find(v => v.lang === 'en-US')
+          || voices.find(v => v.lang.startsWith('en'));
+  if(en) utt.voice = en;
+  utt.onend = () => cb && cb();
+  window.speechSynthesis.speak(utt);
+}
+
+function speakLine(who, text) {
+  if(who === 'Tú') speakText(text);
+}
+
+// Load voices async
+if(window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+// ============================================================
+// PROGRESS SCREEN
+// ============================================================
+function renderProgress() {
+  document.getElementById('ps-streak').textContent = state.streak;
+  document.getElementById('ps-weeks').textContent = state.completed.length;
+  document.getElementById('ps-xp').textContent = state.xp;
+
+  // Streak calendar — last 28 days
+  const grid = document.getElementById('streak-grid');
+  grid.innerHTML = '';
+  const today = new Date();
+  for(let i = 27; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0,10);
+    const isToday = i === 0;
+    const isDone = state.streakDays.includes(ds);
+    const el = document.createElement('div');
+    el.className = 'streak-day ' + (isToday?'today':isDone?'done':'');
+    el.textContent = d.getDate();
+    grid.appendChild(el);
+  }
+
+  // Module progress
+  const list = document.getElementById('module-progress-list');
+  list.innerHTML = '';
+  MODULES.forEach(mod => {
+    const done = mod.weeks.filter(w => state.completed.includes(w)).length;
+    const pct = Math.round(done / mod.weeks.length * 100);
+    const el = document.createElement('div');
+    el.className = 'mp-card';
+    el.innerHTML = `
+      <div class="mp-row">
+        <div class="mp-name">${mod.num} — ${mod.title}</div>
+        <div class="mp-count">${done}/${mod.weeks.length}</div>
+      </div>
+      <div class="mp-bar"><div class="mp-fill" style="width:${pct}%"></div></div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+// PWA INSTALL
+// ============================================================
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.remove('hidden');
+});
+
+document.getElementById('install-banner').addEventListener('click', async () => {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if(outcome === 'accepted') {
+      document.getElementById('install-banner').classList.add('hidden');
+      showToast('¡App instalada! Búscala en tu pantalla principal 🎉');
+    }
+    deferredPrompt = null;
+  } else {
+    showModal(
+      '📲 Agregar a pantalla principal',
+      'Para instalarlo en iPhone/iPad:\n1. Toca el botón de Compartir (cuadrado con flecha)\n2. Desplázate y toca "Agregar a pantalla de inicio"\n3. Toca "Agregar" arriba a la derecha\n\nEn Android: busca el menú ⋮ y toca "Agregar a pantalla de inicio".',
+      'Entendido'
+    );
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+  showToast('¡App instalada exitosamente! 🎉');
+});
+
+// ============================================================
+// TOAST & MODAL
+// ============================================================
+function showToast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function showModal(title, text, btnLabel) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-text').innerHTML = text.replace(/\n/g,'<br>');
+  document.getElementById('modal-btn').textContent = btnLabel || 'Cerrar';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ============================================================
+// SERVICE WORKER
+// ============================================================
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+renderHome();
+</script>
+</body>
+</html>
